@@ -1,4 +1,6 @@
 
+import { ReactElement } from 'react';
+
 export type AppMode = 'teacher' | 'astrologer' | 'home';
 
 export interface Message {
@@ -18,9 +20,10 @@ export interface ModeConfig {
   title: string;
   subtitle: string;
   description: string;
-  icon: React.ReactNode;
+  icon: ReactElement;
   primaryColor: string;
   secondaryColor: string;
   bgColor: string;
+  accentColor: string;
   systemInstruction: string;
 }

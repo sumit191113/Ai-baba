@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Send, Trash2, Loader2, User, Sparkles, BookOpen } from 'lucide-react';
+import { ArrowLeft, Send, Trash2, User, Sparkles, BookOpen } from 'lucide-react';
 import { AppMode, Message, ModeConfig } from '../types';
 import { AIHandler } from '../services/geminiService';
 
@@ -35,7 +35,10 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
 
   const scrollToBottom = () => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -83,25 +86,29 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white max-w-2xl mx-auto shadow-2xl">
-      {/* Header */}
-      <header className={`flex items-center justify-between p-4 sticky top-0 z-10 ${config.primaryColor} text-white shadow-md`}>
-        <div className="flex items-center gap-3">
+    <div className="flex flex-col h-screen bg-[#FDFDFD] max-w-2xl mx-auto overflow-hidden animate-slide-in">
+      {/* Immersive Glass Header */}
+      <header className={`flex items-center justify-between px-4 py-3 sticky top-0 z-30 glass border-b border-gray-100 shadow-sm`}>
+        <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
-            className="p-2 hover:bg-white/20 rounded-full transition-colors"
+            className="p-2 hover:bg-black/5 rounded-full transition-all active:scale-90"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5 text-gray-600" />
           </button>
-          <div>
-            <h2 className="font-bold text-lg leading-tight">{config.title}</h2>
-            <p className="text-xs opacity-80">{config.subtitle}</p>
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-xl text-white shadow-md ${config.primaryColor}`}>
+               {mode === 'teacher' ? <BookOpen size={18} /> : <Sparkles size={18} />}
+            </div>
+            <div>
+              <h2 className="font-extrabold text-gray-900 text-sm tracking-tight leading-none">{config.title}</h2>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Online Now</p>
+            </div>
           </div>
         </div>
         <button 
           onClick={onClearHistory}
-          className="p-2 hover:bg-white/20 rounded-full transition-colors"
-          title="Clear Chat"
+          className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
         >
           <Trash2 className="w-5 h-5" />
         </button>
@@ -110,18 +117,18 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
       {/* Messages */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 space-y-6 hide-scrollbar bg-gray-50/50"
+        className="flex-1 overflow-y-auto p-4 space-y-6 hide-scrollbar"
       >
         {history.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center p-8 opacity-60">
-            <div className={`p-6 rounded-full ${config.bgColor} ${config.secondaryColor} mb-4`}>
-              {mode === 'teacher' ? <BookOpen className="w-12 h-12" /> : <Sparkles className="w-12 h-12" />}
+          <div className="flex flex-col items-center justify-center min-h-[70vh] text-center p-8">
+            <div className={`w-24 h-24 rounded-[2.5rem] flex items-center justify-center ${config.bgColor} ${config.secondaryColor} mb-6 shadow-inner animate-pulse`}>
+              {mode === 'teacher' ? <BookOpen size={40} /> : <Sparkles size={40} />}
             </div>
-            <h3 className="text-xl font-bold text-gray-800">Pranam! Kaise hain aap?</h3>
-            <p className="text-sm mt-2 max-w-[250px]">
+            <h3 className="text-2xl font-black text-gray-900 mb-2 tracking-tight">Pranam & Welcome</h3>
+            <p className="text-sm text-gray-500 font-medium max-w-[220px] leading-relaxed">
               {mode === 'teacher' 
-                ? "Mujhse koi bhi academic sawal puchiye, main explain karunga simple Hinglish mein."
-                : "Apne jeevan ya karma ke bare mein puchiye, hum grah-dasha par vichar karenge."}
+                ? "Let's explore logic and facts together in simple Hinglish."
+                : "Ask about your path, karma, or the guidance of the stars."}
             </p>
           </div>
         )}
@@ -129,69 +136,61 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
         {history.map((msg) => (
           <div 
             key={msg.id} 
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} animate-slide-in`}
           >
-            <div className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm ${
-                msg.role === 'user' ? 'bg-gray-200 text-gray-600' : config.primaryColor + ' text-white'
-              }`}>
-                {msg.role === 'user' ? <User className="w-5 h-5" /> : (mode === 'teacher' ? <BookOpen className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />)}
+            <div className={`flex gap-2 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+              <div className={`flex-shrink-0 mt-auto mb-1`}>
+                <div className={`w-6 h-6 rounded-lg flex items-center justify-center shadow-sm ${
+                  msg.role === 'user' ? 'bg-gray-200 text-gray-500' : `${config.primaryColor} text-white`
+                }`}>
+                  {msg.role === 'user' ? <User size={12} /> : (mode === 'teacher' ? <BookOpen size={12} /> : <Sparkles size={12} />)}
+                </div>
               </div>
-              <div className={`p-4 rounded-2xl shadow-sm text-sm leading-relaxed whitespace-pre-wrap ${
+              
+              <div className={`p-4 shadow-sm text-[15px] leading-relaxed transition-all ${
                 msg.role === 'user' 
-                  ? 'bg-gray-800 text-white rounded-tr-none' 
-                  : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'
+                  ? 'bg-gray-800 text-white bubble-user' 
+                  : 'bg-white text-gray-800 border border-gray-100 bubble-bot'
               }`}>
                 {msg.content}
                 {msg.role === 'model' && msg.content === '' && (
-                  <Loader2 className="w-5 h-5 animate-spin opacity-40" />
+                  <div className="flex gap-1 py-1">
+                    <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce"></div>
+                    <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  </div>
                 )}
               </div>
             </div>
+            <span className="text-[10px] text-gray-400 font-bold mt-1.5 mx-8 uppercase tracking-tighter">
+              {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
           </div>
         ))}
-        {isTyping && history[history.length - 1]?.role !== 'model' && (
-          <div className="flex justify-start">
-            <div className="flex gap-3 items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${config.primaryColor} text-white`}>
-                 {mode === 'teacher' ? <BookOpen className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
-              </div>
-              <div className="bg-white border border-gray-100 p-3 rounded-2xl rounded-tl-none">
-                <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-white border-t border-gray-100">
-        <form onSubmit={handleSend} className="flex gap-2 relative">
+      <div className="p-4 bg-white/80 backdrop-blur-md border-t border-gray-100 pb-8">
+        <form onSubmit={handleSend} className="max-w-xl mx-auto flex gap-2 relative">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === 'teacher' ? "Ask a question..." : "Apne jeevan ka prashna puchein..."}
-            className="flex-1 bg-gray-100 rounded-2xl px-5 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all text-sm"
-            style={{ 
-              ['--tw-ring-color' as any]: mode === 'teacher' ? 'rgb(79 70 229)' : 'rgb(249 115 22)'
-            }}
+            placeholder={mode === 'teacher' ? "Ask anything logical..." : "Apna prashna puchein..."}
+            className="w-full bg-gray-100/50 border border-transparent rounded-[2rem] px-6 py-4 pr-14 focus:outline-none focus:bg-white focus:border-gray-200 focus:ring-4 focus:ring-black/5 transition-all text-sm font-medium shadow-inner"
           />
           <button
             type="submit"
             disabled={!input.trim() || isTyping}
-            className={`absolute right-1 top-1 bottom-1 w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
-              !input.trim() || isTyping ? 'bg-gray-200 text-gray-400' : `${config.primaryColor} text-white shadow-lg shadow-black/5 active:scale-95`
+            className={`absolute right-1.5 top-1.5 bottom-1.5 w-11 h-11 flex items-center justify-center rounded-full transition-all ${
+              !input.trim() || isTyping 
+                ? 'bg-gray-200 text-gray-400' 
+                : `${config.primaryColor} text-white shadow-lg shadow-black/10 active:scale-90`
             }`}
           >
-            <Send className="w-5 h-5" />
+            <Send size={18} />
           </button>
         </form>
-        <p className="text-[10px] text-center text-gray-400 mt-2">
-          {mode === 'teacher' 
-            ? "Educational purpose only. Verify facts for high-stakes exams."
-            : "Jyotish guidance only. Future tendencies are not absolute."}
-        </p>
       </div>
     </div>
   );

@@ -11,29 +11,36 @@ const ModeCard: React.FC<ModeCardProps> = ({ config, onSelect }) => {
   return (
     <button
       onClick={onSelect}
-      className={`relative overflow-hidden w-full p-8 rounded-3xl text-left transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl ${config.bgColor}`}
+      className={`group relative overflow-hidden w-full p-7 rounded-[2.5rem] text-left transition-all duration-500 hover:-translate-y-2 active:scale-95 shadow-xl hover:shadow-2xl border border-white ${config.bgColor}`}
     >
-      <div className={`absolute -right-4 -bottom-4 opacity-10 ${config.secondaryColor}`}>
-        {config.icon}
+      {/* Abstract Background Blur */}
+      <div className={`absolute -right-10 -top-10 w-40 h-40 rounded-full blur-3xl opacity-20 ${config.primaryColor}`}></div>
+      
+      <div className="relative z-10">
+        <div className={`inline-flex p-4 rounded-2xl mb-6 shadow-lg shadow-black/5 ${config.primaryColor} text-white transform group-hover:rotate-6 transition-transform`}>
+          {config.icon}
+        </div>
+        
+        <div className="flex flex-col">
+          <span className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 opacity-60 ${config.secondaryColor}`}>
+            {config.subtitle}
+          </span>
+          <h3 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">{config.title}</h3>
+          <p className="text-gray-600 text-sm leading-relaxed font-medium">
+            {config.description}
+          </p>
+        </div>
+
+        <div className="mt-8 flex items-center gap-2">
+          <div className={`h-[2px] w-8 rounded-full transition-all duration-300 group-hover:w-12 ${config.primaryColor}`}></div>
+          <span className={`text-xs font-bold uppercase tracking-widest ${config.secondaryColor}`}>Enter Mode</span>
+        </div>
       </div>
-      <div className={`inline-flex p-3 rounded-2xl mb-6 shadow-sm ${config.primaryColor} text-white`}>
-        {config.icon}
-      </div>
-      <h3 className="text-2xl font-bold text-gray-800 mb-1">{config.title}</h3>
-      <p className={`font-medium mb-3 ${config.secondaryColor}`}>{config.subtitle}</p>
-      <p className="text-gray-600 text-sm leading-relaxed max-w-[80%]">
-        {config.description}
-      </p>
-      <div className="mt-6 flex items-center text-sm font-semibold group">
-        <span className={config.secondaryColor}>Start Conversation</span>
-        <svg 
-          className={`w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1 ${config.secondaryColor}`} 
-          fill="none" 
-          viewBox="0 0 24 24" 
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
+
+      {/* Large Decorative Icon */}
+      <div className={`absolute -right-4 -bottom-4 opacity-[0.03] transform transition-transform duration-700 group-hover:scale-125 group-hover:-rotate-12 ${config.secondaryColor}`}>
+        {/* Fix: Explicitly cast to React.ReactElement<any> to allow 'size' prop in cloneElement */}
+        {React.cloneElement(config.icon as React.ReactElement<any>, { size: 160 })}
       </div>
     </button>
   );
